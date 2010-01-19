@@ -21,9 +21,6 @@ class Manager(threading.Thread):
         self.input = input
         self.output = output
 
-    def output_action(self, id_, *args):
-        self.output.put(e3.Action(id_, *args))
-
     def run(self):
         while True:
             try:
@@ -78,7 +75,7 @@ class SwitchboardTransport(object):
             return self.cids[mail][0]
         else:
             cid = time.time()
-            self.manager.output_action(e3.Action.ACTION_NEW_CONVERSATION, (mail, cid))
+            self.manager.output.new_conversation(mail, cid)
             return cid
 
     def parse(self, mail, message):
@@ -91,5 +88,4 @@ class SwitchboardTransport(object):
         with cid returned by self.request.'''
         message = e3.Message(e3.Message.TYPE_P2P, body, self.mail,
             dest=mail)
-        self.manager.output_action(e3.Action.ACTION_SEND_MESSAGE,
-            (self.request(mail), message))
+        self.manager.output.send_message(self.request(mail), message)

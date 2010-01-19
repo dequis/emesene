@@ -143,55 +143,42 @@ class Worker(e3.Worker):
         self._common_handlers = common_handlers
 
 
+    def run_cycle(self):
+        try:
+            data = self.socket.output.get(True, 0.1)
+
+            if type(data) == int and data == 0:
+                self.session.add_event(e3.Event.EVENT_ERROR,
+                    'Connection closed')
+                log.debug('Worker connection closed')
+                raise e3.Thread.Quit()
+
+            self._process(data)
+            return False
+        except Queue.Empty:
+            pass
+
+        try:
+            cmd = self.command_queue.get(True, 0.1)
+            self.socket.send_command(cmd.command, cmd.params, cmd.payload)
+        except Queue.Empty:
+            pass
+
+        if self.in_login:
+            return False
+
     def run(self):
-        '''main method, block waiting for data, process it, and send data back
-        to the socket or add a new event to the socket depending on the data'''
-        data = None
+        e3.Worker.run(self)
 
-        while True:
-            try:
-                data = self.socket.output.get(True, 0.1)
+        self.socket.input.put('quit')
+        self.session.logger.quit()
+        self.msg_manager.quit()
 
-                if type(data) == int and data == 0:
-                    self.session.add_event(e3.Event.EVENT_ERROR,
-                        'Connection closed')
-                    log.debug('Worker connection closed')
-                    break
+        for (cid, conversation) in self.conversations.iteritems():
+            conversation.command_queue.put('quit')
 
-                self._process(data)
-                continue
-            except Queue.Empty:
-                pass
-
-            try:
-                cmd = self.command_queue.get(True, 0.1)
-                self.socket.send_command(cmd.command, cmd.params, cmd.payload)
-            except Queue.Empty:
-                pass
-
-            if self.in_login:
-                continue
-
-            try:
-                action = self.session.actions.get(True, 0.1)
-
-                if action.id_ == e3.Action.ACTION_QUIT:
-                    log.debug('closing thread')
-                    self.socket.input.put('quit')
-                    self.session.logger.quit()
-                    self.msg_manager.quit()
-
-                    for (cid, conversation) in self.conversations.iteritems():
-                        conversation.command_queue.put('quit')
-
-                    for (pid, transfer) in self.transfers.iteritems():
-                        transfer.add_action(e3.Action.ACTION_QUIT)
-
-                    break
-
-                self._process_action(action)
-            except Queue.Empty:
-                pass
+        for (pid, transfer) in self.transfers.iteritems():
+            transfer.add_action(e3.Action.ACTION_QUIT)
 
     def _process(self, message):
         '''process the data'''

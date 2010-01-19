@@ -28,13 +28,13 @@ import shutil
 import sys
 import time
 
+import e3
 from e3 import cache
 import e3.base.Contact
 import e3.base.Group
 import e3.base.Message
 import e3.base.Worker
 from e3.base import status
-from e3.base.Action import Action
 from e3.base.Event import Event
 import e3.base.Logger as Logger
 from e3.common import ConfigDir
@@ -95,23 +95,16 @@ class Worker(e3.base.Worker, papyon.Client):
 
         self.caches = e3.cache.CacheManager(self.session.config_dir.base_dir)
 
-    def run(self):
-        '''main method, block waiting for data, process it, and send data back
-        '''
+    def run_cycle(self):
         self._mainloop = gobject.MainLoop(is_running=True)
-        while self._mainloop.is_running():
-            try:
-                action = self.session.actions.get(True, 0.1)
+        if not self._mainloop.is_running():
+            raise e3.Thread.Quit()
 
-                if action.id_ == Action.ACTION_QUIT:
-                    log.debug('closing thread')
-                    self.logout()
-                    self.session.logger.quit()
-                    break
+    def run(self):
+        e3.base.Worker.run()
 
-                self._process_action(action)
-            except Queue.Empty:
-                pass
+        self.logout()
+        self.session.logger.quit()
 
     # some useful methods (mostly, gui only)
     def set_initial_infos(self):

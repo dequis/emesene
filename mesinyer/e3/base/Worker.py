@@ -4,7 +4,9 @@ import Queue
 import threading
 
 from Event import Event
-from Action import Action
+from Thread import Thread
+
+import e3
 
 EVENTS = (\
  'login started'         , 'login info'           ,
@@ -41,88 +43,29 @@ EVENTS = (\
  'profile set succeed'  , 'profile set failed',
  'media received')
 
-ACTIONS = (\
- 'login'            , 'logout'           ,
- 'change status'    ,
- 'block contact'    , 'unblock contact'  ,
- 'add contact'      , 'remove contact'   , 'reject contact',
- 'set contact alias', 'quit'             ,
- 'add to group'     , 'remove from group',
- 'move to group'    , 'rename group'     ,
- 'add group'        , 'remove group'     ,
- 'set nick'         , 'set message'      ,
- 'set picture'      , 'set preferences'  ,
- 'new conversation' , 'close conversation',
- 'send message'     , 'conv invite',
- 'p2p invite'       , 'p2p accept',
- 'p2p cancel'       , 'media send', # media send if got Wink and audio clips
- 'send oim')
-
 Event.set_constants(EVENTS)
-Action.set_constants(ACTIONS)
 
-class Worker(threading.Thread):
+class Worker(Thread):
     '''this class represent an object that waits for commands from the queue
     of a socket, process them and add it as events to its own queue'''
 
     def __init__(self, app_name, session):
         '''class constructor'''
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
         self.setDaemon(True)
 
         self.app_name = app_name
 
         self.in_login = False
         self.session = session
+        self.add_queue(session.actions, prefix='_handle_action_')
 
         # this queue receives a Command object
         self.command_queue = Queue.Queue()
 
         self.action_handlers = {}
-        Worker._set_handlers(self)
 
-    def _set_handlers(self):
-        '''set a dict with the action id as key and the handler as value'''
-        dah = {}
-
-        dah[Action.ACTION_ADD_CONTACT] = self._handle_action_add_contact
-        dah[Action.ACTION_ADD_GROUP] = self._handle_action_add_group
-        dah[Action.ACTION_ADD_TO_GROUP] = self._handle_action_add_to_group
-        dah[Action.ACTION_BLOCK_CONTACT] = self._handle_action_block_contact
-        dah[Action.ACTION_UNBLOCK_CONTACT] = self._handle_action_unblock_contact
-        dah[Action.ACTION_CHANGE_STATUS] = self._handle_action_change_status
-        dah[Action.ACTION_LOGIN] = self._handle_action_login
-        dah[Action.ACTION_LOGOUT] = self._handle_action_logout
-        dah[Action.ACTION_MOVE_TO_GROUP] = self._handle_action_move_to_group
-        dah[Action.ACTION_REMOVE_CONTACT] = self._handle_action_remove_contact
-        dah[Action.ACTION_REJECT_CONTACT] = self._handle_action_reject_contact
-        dah[Action.ACTION_REMOVE_FROM_GROUP] = \
-            self._handle_action_remove_from_group
-        dah[Action.ACTION_REMOVE_GROUP] = self._handle_action_remove_group
-        dah[Action.ACTION_RENAME_GROUP] = self._handle_action_rename_group
-        dah[Action.ACTION_SET_CONTACT_ALIAS] = \
-            self._handle_action_set_contact_alias
-        dah[Action.ACTION_SET_MESSAGE] = self._handle_action_set_message
-        dah[Action.ACTION_SET_NICK] = self._handle_action_set_nick
-        dah[Action.ACTION_SET_PICTURE] = self._handle_action_set_picture
-        dah[Action.ACTION_SET_PREFERENCES] = self._handle_action_set_preferences
-        dah[Action.ACTION_NEW_CONVERSATION] = \
-            self._handle_action_new_conversation
-        dah[Action.ACTION_CLOSE_CONVERSATION] = \
-            self._handle_action_close_conversation
-        dah[Action.ACTION_CONV_INVITE] = \
-            self._handle_action_conv_invite
-        dah[Action.ACTION_SEND_MESSAGE] = self._handle_action_send_message
-        dah[Action.ACTION_SEND_OIM] = self._handle_action_send_oim
-
-        # p2p actions
-        dah[Action.ACTION_P2P_INVITE] = self._handle_action_p2p_invite
-        dah[Action.ACTION_P2P_ACCEPT] = self._handle_action_p2p_accept
-        dah[Action.ACTION_P2P_CANCEL] = self._handle_action_p2p_cancel
-
-        self.action_handlers = dah
-
-    def run(self):
+    def run_cycle(self):
         '''main method, block waiting for data, process it, and send data back
         '''
         raise NotImplentedError('not implemented')

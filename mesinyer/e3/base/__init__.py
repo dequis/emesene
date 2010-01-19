@@ -20,7 +20,6 @@
 from Proxy import Proxy
 from Group import Group
 from Event import Event
-from Action import Action
 from Worker import Worker
 from Message import Message
 from Message import Style

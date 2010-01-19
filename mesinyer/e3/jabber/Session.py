@@ -18,18 +18,18 @@ class Session(e3.Session):
         worker = Worker('emesene2', self, proxy, use_http)
         worker.start()
 
-        self.add_action(e3.Action.ACTION_LOGIN, (account, password, status))
+        self.actions.login(account, password, status)
 
     def send_message(self, cid, text, style=None):
         '''send a common message'''
         account = self.account.account
         message = e3.Message(e3.Message.TYPE_MESSAGE, text, account,
             style)
-        self.add_action(e3.Action.ACTION_SEND_MESSAGE, (cid, message))
+        self.actions.send_message(cid, message)
 
     def request_attention(self, cid):
         '''request the attention of the contact'''
         account = self.account.account
         message = e3.Message(e3.Message.TYPE_MESSAGE,
             '%s requests your attention' % (account, ), account)
-        self.add_action(e3.Action.ACTION_SEND_MESSAGE, (cid, message))
+        self.actions.send_message(cid, message)

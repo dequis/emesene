@@ -23,7 +23,7 @@ import Queue
 
 from Worker import EVENTS
 from Event import Event
-from Action import Action
+from e3.common.Actions import Actions
 
 import e3
 import Logger
@@ -48,7 +48,7 @@ class Session(object):
         self.extras = {}
 
         self.events = Queue.Queue()
-        self.actions = Queue.Queue()
+        self.actions = Actions()
 
         if account is not None:
             self.account = account
@@ -81,10 +81,6 @@ class Session(object):
         '''add an event to the events queue'''
         self.events.put(Event(id_, *args))
 
-    def add_action(self, id_, *args):
-        '''add an action to the action queue'''
-        self.actions.put(Action(id_, *args))
-
     def save_config(self):
         '''save the config of the session'''
         self.config.save(self.config_dir.join('config'))
@@ -103,19 +99,19 @@ class Session(object):
 
     def new_conversation(self, account, cid):
         '''start a new conversation with account'''
-        self.add_action(Action.ACTION_NEW_CONVERSATION, (account, cid))
+        self.actions.new_conversation(account, sid)
 
     def close_conversation(self, cid):
         '''close a conversation identified by cid'''
-        self.add_action(Action.ACTION_CLOSE_CONVERSATION, (cid,))
+        self.actions.close_conversation(cid)
 
     def conversation_invite(self, cid, account):
         '''invite a contact to aconversation identified by cid'''
-        self.add_action(Action.ACTION_CONV_INVITE, (cid, account))
+        self.actions.conv_invite(cid, account)
 
     def quit(self):
         '''close the worker and socket threads'''
-        self.add_action(Action.ACTION_QUIT, ())
+        self.actions.quit()
 
     def login(self, account, password, status, proxy, use_http=False):
         '''start the login process'''
@@ -123,82 +119,79 @@ class Session(object):
 
     def logout(self):
         '''close the session'''
-        self.add_action(Action.ACTION_LOGOUT, ())
+        self.actions.logout()
 
     def set_status(self, status):
         '''change the status of the session'''
-        self.add_action(Action.ACTION_CHANGE_STATUS, (status,))
+        self.actions.change_status(status)
 
     def add_contact(self, account):
         '''add the contact to our contact list'''
-        self.add_action(Action.ACTION_ADD_CONTACT, (account,))
+        self.actions.add_contact(account)
 
     def remove_contact(self, account):
         '''remove the contact from our contact list'''
-        self.add_action(Action.ACTION_REMOVE_CONTACT, (account,))
+        self.actions.remove_contact(account)
 
     def reject_contact(self, account):
         '''reject a contact that added us'''
-        self.add_action(Action.ACTION_REJECT_CONTACT, (account,))
+        self.actions.reject_contact(account)
 
     def block(self, account):
         '''block the contact'''
-        self.add_action(Action.ACTION_BLOCK_CONTACT, (account,))
+        self.actions.block_contact(account)
 
     def unblock(self, account):
         '''block the contact'''
-        self.add_action(Action.ACTION_UNBLOCK_CONTACT, (account,))
+        self.actions.unblock_contact(account)
 
     def set_alias(self, account, alias):
         '''set the alias of a contact'''
-        self.add_action(Action.ACTION_SET_CONTACT_ALIAS,
-            (account, alias))
+        self.actions.set_contact_alias(account, alias)
 
     def add_to_group(self, account, gid):
         '''add a contact to a group'''
-        self.add_action(Action.ACTION_ADD_TO_GROUP, (account, gid))
+        self.actions.add_to_group(account, gid)
 
     def remove_from_group(self, account, gid):
         '''remove a contact from a group'''
-        self.add_action(Action.ACTION_REMOVE_FROM_GROUP,
-            (account, gid))
+        self.actions.remove_from_group(account, gid)
 
     def move_to_group(self, account, src_gid, dest_gid):
         '''remove a contact from the group identified by src_gid and add it
         to dest_gid'''
-        self.add_action(Action.ACTION_MOVE_TO_GROUP, (account,
-            src_gid, dest_gid))
+        self.actions.move_to_group(account, src_gid, dest_gid)
 
     def add_group(self, name):
         '''add a group '''
-        self.add_action(Action.ACTION_ADD_GROUP, (name,))
+        self.actions.add_group(name)
 
     def remove_group(self, gid):
         '''remove the group identified by gid'''
-        self.add_action(Action.ACTION_REMOVE_GROUP, (gid,))
+        self.actions.remove_group(gid)
 
     def rename_group(self, gid, name):
         '''rename the group identified by gid with the new name'''
-        self.add_action(Action.ACTION_RENAME_GROUP, (gid, name))
+        self.actions.rename_group(gid, name)
 
     def set_nick(self, nick):
         '''set the nick of the session'''
-        self.add_action(Action.ACTION_SET_NICK, (nick,))
+        self.actions.set_nick(nick)
 
     def set_message(self, message):
         '''set the message of the session'''
-        self.add_action(Action.ACTION_SET_MESSAGE, (message,))
+        self.actions.set_message(message)
 
     def set_picture(self, picture_name):
         '''set the picture of the session to the picture with picture_name as
         name'''
-        self.add_action(Action.ACTION_SET_PICTURE, (picture_name,))
+        self.actions.set_picture(picture_name)
 
     def set_preferences(self, preferences):
         '''set the preferences of the session to preferences, that is a
         dict containing key:value pairs where the keys are the preference name
         and value is the new value of that preference'''
-        self.add_action(Action.ACTION_SET_PREFERENCE, (preferences,))
+        self.actions.set_preference(preferences)
 
     def send_message(self, cid, text, style=None):
         '''send a common message'''

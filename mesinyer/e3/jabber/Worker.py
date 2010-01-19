@@ -37,26 +37,14 @@ class Worker(e3.Worker):
         self.roster = None
         self.start_time = None
 
+    def run_cycle(self):
+        if hasattr(self.client, 'Process'):
+            self.client.Process(1)
+
     def run(self):
-        '''main method, block waiting for data, process it, and send data back
-        '''
-        data = None
+        e3.Worker.run(self)
 
-        while True:
-            if hasattr(self.client, 'Process'):
-                self.client.Process(1)
-
-            try:
-                action = self.session.actions.get(True, 0.1)
-
-                if action.id_ == e3.Action.ACTION_QUIT:
-                    log.debug('closing thread')
-                    self.session.logger.quit()
-                    break
-
-                self._process_action(action)
-            except Queue.Empty:
-                pass
+        self.session.logger.quit()
 
     def _on_presence(self, client, presence):
         '''handle the reception of a presence message'''
