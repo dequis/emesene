@@ -135,153 +135,76 @@ class Worker(e3.Worker):
         self.session.contacts.contacts[account].groups.append(group)
 
     # action handlers
-    def _handle_action_add_contact(self, account):
-        '''handle Action.ACTION_ADD_CONTACT
-        '''
+    def add_contact(self, account):
         self.session.add_event(e3.Event.EVENT_CONTACT_ADD_SUCCEED,
             account)
 
-    def _handle_action_add_group(self, name):
-        '''handle Action.ACTION_ADD_GROUP
-        '''
+    def add_group(self, name):
         self.session.add_event(e3.Event.EVENT_GROUP_ADD_SUCCEED,
             name)
 
-    def _handle_action_add_to_group(self, account, gid):
-        '''handle Action.ACTION_ADD_TO_GROUP
-        '''
+    def add_to_group(self, account, gid):
         self.session.add_event(e3.Event.EVENT_GROUP_ADD_CONTACT_SUCCEED,
             gid, account)
 
-    def _handle_action_block_contact(self, account):
-        '''handle Action.ACTION_BLOCK_CONTACT
-        '''
+    def block_contact(self, account):
         self.session.add_event(e3.Event.EVENT_CONTACT_BLOCK_SUCCEED, account)
 
-    def _handle_action_unblock_contact(self, account):
-        '''handle Action.ACTION_UNBLOCK_CONTACT
-        '''
+    def unblock_contact(self, account):
         self.session.add_event(e3.Event.EVENT_CONTACT_UNBLOCK_SUCCEED,
             account)
 
-    def _handle_action_change_status(self, status_):
-        '''handle Action.ACTION_CHANGE_STATUS
-        '''
+    def change_status(self, status_):
         self.session.account.status = status_
         self.session.contacts.me.status = status_
         self.session.add_event(e3.Event.EVENT_STATUS_CHANGE_SUCCEED, status_)
 
-    def _handle_action_login(self, account, password, status_):
-        '''handle Action.ACTION_LOGIN
-        '''
+    def login(self, account, password, status_):
         self.session.add_event(e3.Event.EVENT_LOGIN_SUCCEED)
         self.session.add_event(e3.Event.EVENT_NICK_CHANGE_SUCCEED,
                 'dummy nick is dummy')
         self._fill_contact_list()
         self.session.add_event(e3.Event.EVENT_CONTACT_LIST_READY)
 
-    def _handle_action_logout(self):
-        '''handle Action.ACTION_LOGOUT
-        '''
-
-    def _handle_action_move_to_group(self, account, src_gid, dest_gid):
-        '''handle Action.ACTION_MOVE_TO_GROUP
-        '''
+    def move_to_group(self, account, src_gid, dest_gid):
         self.session.add_event(e3.Event.EVENT_CONTACT_MOVE_SUCCEED,
             account, src_gid, dest_gid)
 
-    def _handle_action_remove_contact(self, account):
-        '''handle Action.ACTION_REMOVE_CONTACT
-        '''
+    def remove_contact(self, account):
         self.session.add_event(e3.Event.EVENT_CONTACT_REMOVE_SUCCEED, account)
 
-    def _handle_action_reject_contact(self, account):
-        '''handle Action.ACTION_REJECT_CONTACT
-        '''
+    def reject_contact(self, account):
         self.session.add_event(e3.Event.EVENT_CONTACT_REJECT_SUCCEED, account)
 
-    def _handle_action_remove_from_group(self, account, gid):
-        '''handle Action.ACTION_REMOVE_FROM_GROUP
-        '''
+    def remove_from_group(self, account, gid):
         self.session.add_event(e3.Event.EVENT_GROUP_REMOVE_CONTACT_SUCCEED,
             gid, account)
 
-    def _handle_action_remove_group(self, gid):
-        '''handle Action.ACTION_REMOVE_GROUP
-        '''
+    def remove_group(self, gid):
         self.session.add_event(e3.Event.EVENT_GROUP_REMOVE_SUCCEED, gid)
 
-    def _handle_action_rename_group(self, gid, name):
-        '''handle Action.ACTION_RENAME_GROUP
-        '''
+    def rename_group(self, gid, name):
         self.session.add_event(e3.Event.EVENT_GROUP_RENAME_SUCCEED,
             gid, name)
 
-    def _handle_action_set_contact_alias(self, account, alias):
-        '''handle Action.ACTION_SET_CONTACT_ALIAS
-        '''
+    def set_contact_alias(self, account, alias):
         self.session.add_event(e3.Event.EVENT_CONTACT_ALIAS_SUCCEED, account)
 
-    def _handle_action_set_message(self, message):
-        '''handle Action.ACTION_SET_MESSAGE
-        '''
+    def set_message(self, message):
         self.session.add_event(e3.Event.EVENT_MESSAGE_CHANGE_SUCCEED, message)
 
-    def _handle_action_set_nick(self, nick):
-        '''handle Action.ACTION_SET_NICK
-        '''
+    def set_nick(self, nick):
         self.session.add_event(e3.Event.EVENT_NICK_CHANGE_SUCCEED, nick)
 
-    def _handle_action_set_picture(self, picture_name):
-        '''handle Action.ACTION_SET_PICTURE
-        '''
+    def set_picture(self, picture_name):
         self.session.contacts.me.picture = picture_name
         self.session.add_event(e3.Event.EVENT_PICTURE_CHANGE_SUCCEED,
                 self.session.account.account, picture_name)
 
-    def _handle_action_set_preferences(self, preferences):
-        '''handle Action.ACTION_SET_PREFERENCES
-        '''
-        pass
-
-    def _handle_action_new_conversation(self, account, cid):
-        '''handle Action.ACTION_NEW_CONVERSATION
-        '''
-        pass
-
-    def _handle_action_close_conversation(self, cid):
-        '''handle Action.ACTION_CLOSE_CONVERSATION
-        '''
-        pass
-
-    def _handle_action_send_message(self, cid, message):
-        '''handle Action.ACTION_SEND_MESSAGE
-        cid is the conversation id, message is a Message object
-        '''
+    def send_message(self, cid, message):
+        '''cid is the conversation id, message is a Message object'''
         self.session.add_event(e3.Event.EVENT_CONV_MESSAGE_SEND_SUCCEED,
             cid, message)
         account = random.choice(self.session.contacts.contacts.keys())
         self.session.add_event(e3.Event.EVENT_CONV_MESSAGE,
             cid, account, message)
-
-    # p2p handlers
-
-    def _handle_action_p2p_invite(self, cid, pid, dest, type_, identifier):
-        '''handle Action.ACTION_P2P_INVITE,
-         cid is the conversation id
-         pid is the p2p session id, both are numbers that identify the
-            conversation and the session respectively, time.time() is
-            recommended to be used.
-         dest is the destination account
-         type_ is one of the e3.Transfer.TYPE_* constants
-         identifier is the data that is needed to be sent for the invitation
-        '''
-        pass
-
-    def _handle_action_p2p_accept(self, pid):
-        '''handle Action.ACTION_P2P_ACCEPT'''
-        pass
-
-    def _handle_action_p2p_cancel(self, pid):
-        '''handle Action.ACTION_P2P_CANCEL'''
-        pass

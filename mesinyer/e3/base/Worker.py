@@ -45,6 +45,11 @@ EVENTS = (\
 
 Event.set_constants(EVENTS)
 
+actions = []
+def action(f):
+    actions.append(f.__name__)
+    return f
+
 class Worker(Thread):
     '''this class represent an object that waits for commands from the queue
     of a socket, process them and add it as events to its own queue'''
@@ -58,7 +63,7 @@ class Worker(Thread):
 
         self.in_login = False
         self.session = session
-        self.add_queue(session.actions, prefix='_handle_action_')
+        self.add_queue(session.actions)
 
         # this queue receives a Command object
         self.command_queue = Queue.Queue()
@@ -81,147 +86,124 @@ class Worker(Thread):
 
 
     # action handlers (the stubs, copy and complete them on your implementation)
-    def _handle_action_add_contact(self, account):
-        '''handle Action.ACTION_ADD_CONTACT
-        '''
+    @action
+    def add_contact(self, account):
         pass
 
-    def _handle_action_add_group(self, name):
-        '''handle Action.ACTION_ADD_GROUP
-        '''
+    @action
+    def add_group(self, name):
         pass
 
-    def _handle_action_add_to_group(self, account, gid):
-        '''handle Action.ACTION_ADD_TO_GROUP
-        '''
+    @action
+    def add_to_group(self, account, gid):
         pass
 
-    def _handle_action_block_contact(self, account):
-        '''handle Action.ACTION_BLOCK_CONTACT
-        '''
+    @action
+    def block_contact(self, account):
         pass
 
-    def _handle_action_unblock_contact(self, account):
-        '''handle Action.ACTION_UNBLOCK_CONTACT
-        '''
+    @action
+    def unblock_contact(self, account):
         pass
 
-    def _handle_action_change_status(self, status_):
-        '''handle Action.ACTION_CHANGE_STATUS
-        '''
+    @action
+    def change_status(self, status_):
         pass
 
-    def _handle_action_login(self, account, password, status_):
-        '''handle Action.ACTION_LOGIN
-        '''
+    @action
+    def login(self, account, password, status_):
         pass
 
-    def _handle_action_logout(self):
-        '''handle Action.ACTION_LOGOUT
-        '''
+    @action
+    def logout(self):
         pass
 
-    def _handle_action_move_to_group(self, account, src_gid, dest_gid):
-        '''handle Action.ACTION_MOVE_TO_GROUP
-        '''
+    @action
+    def move_to_group(self, account, src_gid, dest_gid):
         pass
 
-    def _handle_action_remove_contact(self, account):
-        '''handle Action.ACTION_REMOVE_CONTACT
-        '''
+    @action
+    def remove_contact(self, account):
         pass
 
-    def _handle_action_reject_contact(self, account):
-        '''handle Action.ACTION_REJECT_CONTACT
-        '''
+    @action
+    def reject_contact(self, account):
         pass
 
-    def _handle_action_remove_from_group(self, account, gid):
-        '''handle Action.ACTION_REMOVE_FROM_GROUP
-        '''
+    @action
+    def remove_from_group(self, account, gid):
         pass
 
-    def _handle_action_remove_group(self, gid):
-        '''handle Action.ACTION_REMOVE_GROUP
-        '''
+    @action
+    def remove_group(self, gid):
         pass
 
-    def _handle_action_rename_group(self, gid, name):
-        '''handle Action.ACTION_RENAME_GROUP
-        '''
+    @action
+    def rename_group(self, gid, name):
         pass
 
-    def _handle_action_set_contact_alias(self, account, alias):
-        '''handle Action.ACTION_SET_CONTACT_ALIAS
-        '''
+    @action
+    def set_contact_alias(self, account, alias):
         pass
 
-    def _handle_action_set_message(self, message):
-        '''handle Action.ACTION_SET_MESSAGE
-        '''
+    @action
+    def set_message(self, message):
         pass
 
-    def _handle_action_set_nick(self, nick):
-        '''handle Action.ACTION_SET_NICK
-        '''
+    @action
+    def set_nick(self, nick):
         pass
 
-    def _handle_action_set_picture(self, picture_name):
-        '''handle Action.ACTION_SET_PICTURE
-        '''
+    @action
+    def set_picture(self, picture_name):
         pass
 
-    def _handle_action_set_preferences(self, preferences):
-        '''handle Action.ACTION_SET_PREFERENCES
-        '''
+    @action
+    def set_preferences(self, preferences):
         pass
 
-    def _handle_action_new_conversation(self, account, cid):
-        '''handle Action.ACTION_NEW_CONVERSATION
-        '''
+    @action
+    def new_conversation(self, account, cid):
         pass
 
-    def _handle_action_close_conversation(self, cid):
-        '''handle Action.ACTION_CLOSE_CONVERSATION
-        '''
+    @action
+    def close_conversation(self, cid):
         pass
 
-    def _handle_action_conv_invite(self, cid, account):
-        '''handle Action.ACTION_CONV_INVITE
-        '''
+    @action
+    def conv_invite(self, cid, account):
         pass
 
-    def _handle_action_send_message(self, cid, message):
-        '''handle Action.ACTION_SEND_MESSAGE
-        cid is the conversation id, message is a MsnMessage object
-        '''
+    @action
+    def send_message(self, cid, message):
+        '''cid is the conversation id, message is a MsnMessage object'''
         pass
 
-    def _handle_action_send_oim(self, cid, dest, message):
-        '''handle Action.ACTION_SEND_OIM
-        cid is the conversation id, message is a string
+    @action
+    def send_oim(self, cid, dest, message):
+        '''cid is the conversation id, message is a string
         dest is the oim receiver account
         '''
         pass
 
     # p2p handlers
 
-    def _handle_action_p2p_invite(self, cid, pid, dest, type_, identifier):
-        '''handle Action.ACTION_P2P_INVITE,
-         cid is the conversation id
-         pid is the p2p session id, both are numbers that identify the
-            conversation and the session respectively, time.time() is
-            recommended to be used.
-         dest is the destination account
-         type_ is one of the e3.Transfer.TYPE_* constants
-         identifier is the data that is needed to be sent for the invitation
+    @action
+    def p2p_invite(self, cid, pid, dest, type_, identifier):
+        '''cid is the conversation id
+        pid is the p2p session id, both are numbers that identify the
+         conversation and the session respectively, time.time() is
+         recommended to be used.
+        dest is the destination account
+        type_ is one of the e3.Transfer.TYPE_* constants
+        identifier is the data that is needed to be sent for the invitation
         '''
         pass
 
-    def _handle_action_p2p_accept(self, pid):
-        '''handle Action.ACTION_P2P_ACCEPT'''
+    @action
+    def p2p_accept(self, pid):
         pass
 
-    def _handle_action_p2p_cancel(self, pid):
-        '''handle Action.ACTION_P2P_CANCEL'''
+    @action
+    def p2p_cancel(self, pid):
         pass

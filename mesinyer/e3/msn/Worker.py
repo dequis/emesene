@@ -673,17 +673,17 @@ class Worker(e3.Worker):
             log.warning('unknown command: ' + str(message))
 
     # action handlers
-    def _handle_action_add_contact(self, account):
+    def add_contact(self, account):
         '''handle e3.Action.ACTION_ADD_CONTACT
         '''
         Requester.AddContact(self.session, account, self.command_queue).start()
 
-    def _handle_action_add_group(self, name):
+    def add_group(self, name):
         '''handle e3.Action.ACTION_ADD_GROUP
         '''
         Requester.AddGroup(self.session, name, self.command_queue).start()
 
-    def _handle_action_add_to_group(self, account, gid):
+    def add_to_group(self, account, gid):
         '''handle e3.Action.ACTION_ADD_TO_GROUP
         '''
         contact = self.session.contacts.get(account)
@@ -694,24 +694,24 @@ class Worker(e3.Worker):
         Requester.AddToGroup(self.session, contact.identifier, contact.account,
             gid, self.command_queue).start()
 
-    def _handle_action_block_contact(self, account):
+    def block_contact(self, account):
         '''handle e3.Action.ACTION_BLOCK_CONTACT
         '''
         Requester.BlockContact(self.session, account, self.command_queue)\
             .start()
 
-    def _handle_action_unblock_contact(self, account):
+    def unblock_contact(self, account):
         '''handle e3.Action.ACTION_UNBLOCK_CONTACT
         '''
         Requester.UnblockContact(self.session, account, self.command_queue)\
             .start()
 
-    def _handle_action_change_status(self, status_):
+    def change_status(self, status_):
         '''handle e3.Action.ACTION_CHANGE_STATUS
         '''
         self._set_status(status_)
 
-    def _handle_action_login(self, account, password, status_):
+    def login(self, account, password, status_):
         '''handle e3.Action.ACTION_LOGIN
         '''
         self.session.account.account = account
@@ -723,12 +723,12 @@ class Worker(e3.Worker):
         self.in_login = True
         self.start_time = time.time()
 
-    def _handle_action_logout(self):
+    def logout(self):
         '''handle e3.Action.ACTION_LOGOUT
         '''
         pass
 
-    def _handle_action_move_to_group(self, account, src_gid, dest_gid):
+    def move_to_group(self, account, src_gid, dest_gid):
         '''handle e3.Action.ACTION_MOVE_TO_GROUP
         '''
         contact = self.session.contacts.get(account)
@@ -739,7 +739,7 @@ class Worker(e3.Worker):
         Requester.MoveContact(self.session, contact.identifier, contact.account,
             src_gid, dest_gid, self.command_queue).start()
 
-    def _handle_action_remove_contact(self, account):
+    def remove_contact(self, account):
         '''handle e3.Action.ACTION_REMOVE_CONTACT
         '''
         contact = self.session.contacts.get(account)
@@ -750,12 +750,12 @@ class Worker(e3.Worker):
         Requester.RemoveContact(self.session, contact.identifier, account, \
             self.command_queue).start()
 
-    def _handle_action_reject_contact(self, account):
+    def reject_contact(self, account):
         '''handle e3.Action.ACTION_REJECT_CONTACT
         '''
         Requester.RemovePendingContact(self.session, account).start()
 
-    def _handle_action_remove_from_group(self, account, gid):
+    def remove_from_group(self, account, gid):
         '''handle e3.Action.ACTION_REMOVE_FROM_GROUP
         '''
         contact = self.session.contacts.get(account)
@@ -766,18 +766,18 @@ class Worker(e3.Worker):
         Requester.RemoveFromGroup(self.session, contact.identifier,
             contact.account, gid, self.command_queue).start()
 
-    def _handle_action_remove_group(self, gid):
+    def remove_group(self, gid):
         '''handle e3.Action.ACTION_REMOVE_GROUP
         '''
         Requester.RemoveGroup(self.session, gid, self.command_queue).start()
 
-    def _handle_action_rename_group(self, gid, name):
+    def rename_group(self, gid, name):
         '''handle e3.Action.ACTION_RENAME_GROUP
         '''
         Requester.RenameGroup(self.session, gid, name,
             self.command_queue).start()
 
-    def _handle_action_set_contact_alias(self, account, alias):
+    def set_contact_alias(self, account, alias):
         '''handle e3.Action.ACTION_SET_CONTACT_ALIAS
         '''
         contact = self.session.contacts.get(account)
@@ -788,7 +788,7 @@ class Worker(e3.Worker):
         Requester.ChangeAlias(self.session, contact.identifier, account, \
             alias, self.command_queue).start()
 
-    def _handle_action_set_message(self, message):
+    def set_message(self, message):
         '''handle e3.Action.ACTION_SET_MESSAGE
         '''
         self.socket.send_command('UUX', payload='<Data><PSM>' + \
@@ -805,7 +805,7 @@ class Worker(e3.Worker):
             account)
         Requester.SetProfile(self.session, contact.nick, message).start()
 
-    def _handle_action_set_nick(self, nick):
+    def set_nick(self, nick):
         '''handle e3.Action.ACTION_SET_NICK
         '''
         contact = self.session.contacts.me
@@ -817,7 +817,7 @@ class Worker(e3.Worker):
             self.command_queue).start()
         Requester.SetProfile(self.session, nick, message).start()
 
-    def _handle_action_set_picture(self, picture_name):
+    def set_picture(self, picture_name):
         '''handle e3.Action.ACTION_SET_PICTURE
         '''
         print 'TODO: implement set picture: ', picture_name
@@ -825,12 +825,12 @@ class Worker(e3.Worker):
         self.session.add_event(e3.Event.EVENT_PICTURE_CHANGE_SUCCEED,
                 self.session.account.account, picture_name)
 
-    def _handle_action_set_preferences(self, preferences):
+    def set_preferences(self, preferences):
         '''handle e3.Action.ACTION_SET_PREFERENCES
         '''
         pass
 
-    def _handle_action_new_conversation(self, account, cid):
+    def new_conversation(self, account, cid):
         '''handle e3.Action.ACTION_NEW_CONVERSATION
         '''
         self.pending_conversations[self.socket.tid] = (account, cid)
@@ -838,7 +838,7 @@ class Worker(e3.Worker):
         self.pending_messages[cid] = []
         self.socket.send_command('XFR', ('SB',))
 
-    def _handle_action_close_conversation(self, cid):
+    def close_conversation(self, cid):
         '''handle e3.Action.ACTION_CLOSE_CONVERSATION
         '''
         if cid in self.conversations:
@@ -847,7 +847,7 @@ class Worker(e3.Worker):
         else:
             log.warning('conversation %s not found' % cid)
 
-    def _handle_action_conv_invite(self, cid, account):
+    def conv_invite(self, cid, account):
         '''handle e3.Action.ACTION_CONV_INVITE
         '''
         if cid in self.conversations:
@@ -855,7 +855,7 @@ class Worker(e3.Worker):
         else:
             log.warning('conversation %s not found' % cid)
 
-    def _handle_action_send_message(self, cid, message):
+    def send_message(self, cid, message):
         '''handle e3.Action.ACTION_SEND_MESSAGE
         cid is the conversation id, message is a MsnMessage object
         '''
@@ -870,6 +870,6 @@ class Worker(e3.Worker):
 
             if conversation.status == Conversation.Conversation.STATUS_CLOSED:
                 conversation.status = Conversation.Conversation.STATUS_PENDING
-                self._handle_action_new_conversation(None, conversation.cid)
+                self.new_conversation(None, conversation.cid)
 
             conversation.send_message(message)
